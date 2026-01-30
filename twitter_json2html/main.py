@@ -2,19 +2,35 @@
 
 from __future__ import annotations
 
+import argparse
 from pathlib import Path
 
 from . import loader, renderer
 
 
 def main() -> None:
-    base_dir = Path(__file__).resolve().parent.parent
-    data_dir = base_dir / "data"
-    template_dir = base_dir / "templates"
-    output_dir = base_dir / "output"
+    parser = argparse.ArgumentParser(
+        description="Convert Twitter API JSON files to HTML pages.",
+    )
+    parser.add_argument(
+        "data_dir",
+        nargs="?",
+        default="data",
+        help="directory containing JSON files (default: ./data)",
+    )
+    parser.add_argument(
+        "-o", "--output",
+        default="output",
+        help="output directory (default: ./output)",
+    )
+    args = parser.parse_args()
+
+    data_dir = Path(args.data_dir).resolve()
+    template_dir = Path(__file__).resolve().parent.parent / "templates"
+    output_dir = Path(args.output).resolve()
 
     if not data_dir.exists():
-        print(f"Error: data directory not found: {data_dir}")
+        parser.error(f"data directory not found: {data_dir}")
         return
 
     print(f"Loading tweets from {data_dir}...")

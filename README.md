@@ -29,10 +29,23 @@ uv sync
 2. スクリプトを実行する
 
 ```bash
-uv run python -m twitter_json2html.main
+uv run python -m twitter_json2html.main [data_dir] [-o output_dir]
 ```
 
-3. `output/` ディレクトリに HTML が生成される
+- `data_dir`: JSON ファイルが格納されたディレクトリ (デフォルト: `./data`)
+- `-o`, `--output`: 出力ディレクトリ (デフォルト: `./output`)
+
+例:
+
+```bash
+# デフォルト (./data → ./output)
+uv run python -m twitter_json2html.main
+
+# ディレクトリを指定
+uv run python -m twitter_json2html.main /path/to/json -o /path/to/html
+```
+
+3. 出力ディレクトリに HTML が生成される
 
 ```
 output/
