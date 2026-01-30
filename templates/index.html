@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Tweet Archive{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Tweet Archive</h1>
+  <div class="subtitle">{{ total_tweets }} tweets</div>
+</div>
+
+<div class="index-section">
+  <h2>Daily</h2>
+  <ul class="index-list">
+    {% for day, tweets in daily_groups.items() %}
+    <li>
+      <a href="daily/{{ day }}.html">
+        <span>{{ day }}</span>
+        <span class="count">{{ tweets | length }} tweets</span>
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+
+<div class="index-section">
+  <h2>Monthly</h2>
+  <ul class="index-list">
+    {% for month, tweets in monthly_groups.items() %}
+    <li>
+      <a href="monthly/{{ month }}.html">
+        <span>{{ month }}</span>
+        <span class="count">{{ tweets | length }} tweets</span>
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

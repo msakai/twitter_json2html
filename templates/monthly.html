@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% from "macros.html" import render_tweet_card %}
+
+{% block title %}Tweets - {{ month }}{% endblock %}
+
+{% block breadcrumb %}
+<div class="breadcrumb">
+  <a href="../index.html">Archive</a> &gt; {{ month }}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>{{ month }}</h1>
+  <div class="subtitle">{{ tweets | length }} tweets</div>
+</div>
+
+{% for tweet in tweets %}
+  {{ render_tweet_card(tweet) }}
+{% endfor %}
+{% endblock %}
