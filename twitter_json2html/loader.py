@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import xml.etree.ElementTree as ET
 from collections import defaultdict
 from datetime import timezone, timedelta
 from pathlib import Path
@@ -39,7 +40,7 @@ def load_all(data_dir: Path) -> list[dict]:
             for tweet in normalized:
                 if tweet["id"] not in tweets_by_id:
                     tweets_by_id[tweet["id"]] = tweet
-        except (ValueError, KeyError) as e:
+        except (ValueError, KeyError, ET.ParseError) as e:
             print(f"Warning: skipping {xml_path.name}: {e}")
 
     return list(tweets_by_id.values())
