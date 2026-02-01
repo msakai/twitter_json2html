@@ -1,8 +1,9 @@
-"""Normalize Twitter API v1.1 and v2 JSON to a common internal format."""
+"""Normalize Twitter API v1.1/v2 JSON and XML to a common internal format."""
 
 from __future__ import annotations
 
 import re
+import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 
 
@@ -171,6 +172,141 @@ def _normalize_v2_tweet(
         "source": tw.get("source"),
         "lang": tw.get("lang"),
     }
+
+
+def normalize_xml(xml_text: str) -> list[dict]:
+    """Parse a Twitter API XML file and normalize to common format.
+
+    The XML format is the old Twitter API v1.0 response with <status> root.
+    """
+    root = ET.fromstring(xml_text)
+    if root.tag != "status":
+        raise ValueError(f"Expected <status> root, got <{root.tag}>")
+    return [_normalize_xml_status(root)]
+
+
+def _normalize_xml_status(el: ET.Element) -> dict:
+    """Normalize a single <status> XML element."""
+    def text(tag: str) -> str:
+        child = el.find(tag)
+        return child.text or "" if child is not None else ""
+
+    def int_or_none(tag: str) -> int | None:
+        val = text(tag)
+        if not val:
+            return None
+        try:
+            return int(val)
+        except ValueError:
+            return None
+
+    created_at = datetime.strptime(
+        text("created_at"), "%a %b %d %H:%M:%S %z %Y"
+    )
+
+    source_raw = text("source")
+    source = _parse_source_html(source_raw)
+
+    user_el = el.find("user")
+    user = _parse_xml_user(user_el) if user_el is not None else {
+        "name": "", "screen_name": "", "profile_image_url": "",
+        "verified": False,
+    }
+
+    tweet_text = text("text")
+
+    # XML format has no entities — auto-detect from text
+    entities = _auto_detect_entities(tweet_text)
+
+    # Handle retweeted_status (retweet)
+    rt_el = el.find("retweeted_status")
+    quoted_tweet = None
+    # Note: old XML doesn't have quoted_status, but retweeted_status exists
+
+    in_reply_to_screen_name = text("in_reply_to_screen_name") or None
+    in_reply_to_status_id = text("in_reply_to_status_id") or None
+
+    return {
+        "id": text("id"),
+        "text": tweet_text,
+        "display_text_range": None,
+        "created_at": created_at,
+        "user": user,
+        "entities": entities,
+        "media": [],
+        "metrics": {
+            "retweet_count": int_or_none("retweet_count") or 0,
+            "like_count": int_or_none("favorite_count") or 0,
+            "reply_count": None,
+            "quote_count": None,
+        },
+        "in_reply_to_user": in_reply_to_screen_name,
+        "in_reply_to_tweet_id": in_reply_to_status_id,
+        "quoted_tweet": quoted_tweet,
+        "source": source,
+        "lang": text("lang") or None,
+    }
+
+
+def _parse_xml_user(el: ET.Element) -> dict:
+    """Parse a <user> XML element."""
+    def text(tag: str) -> str:
+        child = el.find(tag)
+        return child.text or "" if child is not None else ""
+
+    profile_image = text("profile_image_url_https") or text("profile_image_url")
+
+    return {
+        "name": text("name"),
+        "screen_name": text("screen_name"),
+        "profile_image_url": profile_image,
+        "verified": text("verified") == "true",
+    }
+
+
+def _auto_detect_entities(text: str) -> dict:
+    """Auto-detect URLs, @mentions, and #hashtags from plain text.
+
+    Used for old tweets without entity metadata.
+    """
+    urls = []
+    for m in re.finditer(r'https?://[^\s\u3000]+', text):
+        url = m.group(0)
+        # Strip trailing punctuation that's likely not part of the URL
+        url = url.rstrip('.,;:!?)]\u3001\u3002')
+        urls.append({
+            "start": m.start(),
+            "end": m.start() + len(url),
+            "url": url,
+            "expanded_url": url,
+            "display_url": _make_display_url(url),
+        })
+
+    hashtags = []
+    for m in re.finditer(r'[#＃](\w+)', text):
+        hashtags.append({
+            "start": m.start(),
+            "end": m.end(),
+            "tag": m.group(1),
+        })
+
+    mentions = []
+    for m in re.finditer(r'@(\w{1,15})', text):
+        mentions.append({
+            "start": m.start(),
+            "end": m.end(),
+            "username": m.group(1),
+        })
+
+    return {"urls": urls, "hashtags": hashtags, "mentions": mentions}
+
+
+def _make_display_url(url: str) -> str:
+    """Create a short display URL from a full URL."""
+    display = re.sub(r'^https?://', '', url)
+    if len(display) > 40:
+        display = display[:37] + "..."
+    return display
 
 
 def _normalize_v1_entities(entities: dict) -> dict:
