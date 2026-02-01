@@ -1,0 +1,43 @@
+{% extends "dm_base.html" %}
+
+{% block title %}DM with @{{ partner_screen_name }}{% endblock %}
+
+{% block breadcrumb %}
+<div class="breadcrumb">
+  <a href="../index.html">DM Archive</a> &gt; @{{ partner_screen_name }}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>{{ partner_name }}</h1>
+  <div class="subtitle">@{{ partner_screen_name }} &middot; {{ messages | length }} messages</div>
+</div>
+
+<div class="dm-messages">
+  {% set ns = namespace(current_date='') %}
+  {% for dm in messages %}
+    {% set msg_date = dm.created_at | format_datetime_jst %}
+    {% set msg_day = msg_date[:10] %}
+    {% if msg_day != ns.current_date %}
+      {% set ns.current_date = msg_day %}
+      <div class="dm-date-separator">{{ msg_day }}</div>
+    {% endif %}
+
+    {% if dm.sender.id == owner.id %}
+    <div class="dm-message dm-outgoing">
+    {% else %}
+    <div class="dm-message dm-incoming">
+    {% endif %}
+      <img class="dm-avatar"
+           src="{{ dm.sender.profile_image_url | profile_image_bigger }}"
+           alt="{{ dm.sender.name }}"
+           loading="lazy">
+      <div class="dm-meta-wrapper">
+        <div class="dm-bubble">{{ dm | render_dm_text }}</div>
+        <div class="dm-time">{{ dm.created_at | format_datetime_jst }}</div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}

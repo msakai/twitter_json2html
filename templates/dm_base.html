@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block extra_styles %}
+.dm-conversation-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.dm-conversation-list li {
+  margin-bottom: 4px;
+}
+.dm-conversation-list a {
+  display: flex;
+  align-items: center;
+  padding: 12px 14px;
+  background: #fff;
+  border-radius: 8px;
+  color: #0f1419;
+  text-decoration: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  transition: background 0.15s;
+  gap: 12px;
+}
+.dm-conversation-list a:hover {
+  background: #e8f5fd;
+}
+.dm-conv-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  object-fit: cover;
+}
+.dm-conv-info {
+  flex: 1;
+  min-width: 0;
+}
+.dm-conv-name {
+  font-weight: 700;
+  font-size: 0.95em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dm-conv-handle {
+  color: #536471;
+  font-size: 0.85em;
+}
+.dm-conv-meta {
+  text-align: right;
+  flex-shrink: 0;
+}
+.dm-conv-count {
+  color: #536471;
+  font-size: 0.85em;
+}
+.dm-conv-date {
+  color: #536471;
+  font-size: 0.8em;
+}
+.dm-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 0;
+}
+.dm-date-separator {
+  text-align: center;
+  color: #536471;
+  font-size: 0.8em;
+  padding: 12px 0 4px;
+}
+.dm-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  max-width: 85%;
+}
+.dm-message.dm-incoming {
+  align-self: flex-start;
+}
+.dm-message.dm-outgoing {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+.dm-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  object-fit: cover;
+}
+.dm-bubble {
+  padding: 10px 14px;
+  border-radius: 18px;
+  font-size: 0.93em;
+  line-height: 1.5;
+  word-break: break-word;
+}
+.dm-incoming .dm-bubble {
+  background: #fff;
+  border: 1px solid #cfd9de;
+  border-bottom-left-radius: 4px;
+}
+.dm-outgoing .dm-bubble {
+  background: #1d9bf0;
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+.dm-outgoing .dm-bubble a {
+  color: #fff;
+  text-decoration: underline;
+}
+.dm-incoming .dm-bubble a {
+  color: #1d9bf0;
+  text-decoration: none;
+}
+.dm-incoming .dm-bubble a:hover,
+.dm-outgoing .dm-bubble a:hover {
+  text-decoration: underline;
+}
+.dm-time {
+  font-size: 0.75em;
+  color: #536471;
+  margin-top: 2px;
+  padding: 0 4px;
+}
+.dm-incoming .dm-time {
+  text-align: left;
+}
+.dm-outgoing .dm-time {
+  text-align: right;
+}
+.dm-meta-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+@media (max-width: 640px) {
+  .dm-message {
+    max-width: 90%;
+  }
+}
+{% endblock %}
