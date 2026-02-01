@@ -18,3 +18,5 @@ wheels/
 # Data and output
 data/
 output/
+data_dm/
+output_dm/

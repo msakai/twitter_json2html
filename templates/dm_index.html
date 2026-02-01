@@ -1,0 +1,31 @@
+{% extends "dm_base.html" %}
+
+{% block title %}DM Archive{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>DM Archive</h1>
+  <div class="subtitle">{{ total }} messages in {{ conversations | length }} conversations</div>
+</div>
+
+<ul class="dm-conversation-list">
+  {% for conv in conversations %}
+  <li>
+    <a href="conversations/{{ conv.screen_name }}.html">
+      <img class="dm-conv-avatar"
+           src="{{ conv.profile_image_url | profile_image_bigger }}"
+           alt="{{ conv.display_name }}"
+           loading="lazy">
+      <div class="dm-conv-info">
+        <div class="dm-conv-name">{{ conv.display_name }}</div>
+        <div class="dm-conv-handle">@{{ conv.display_screen_name }}</div>
+      </div>
+      <div class="dm-conv-meta">
+        <div class="dm-conv-count">{{ conv.message_count }} messages</div>
+        <div class="dm-conv-date">{{ conv.last_message_at | format_datetime_jst }}</div>
+      </div>
+    </a>
+  </li>
+  {% endfor %}
+</ul>
+{% endblock %}
